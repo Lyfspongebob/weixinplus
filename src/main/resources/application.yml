@@ -8,9 +8,13 @@ spring:
     show-sql: true
 
   datasource:
-    url: jdbc:mysql://localhost:3306/weixinplus
-    username: root
-    password: Lyf2005
+#    url: jdbc:mysql://localhost:3306/weixinplus
+#    username: root
+#    password: Lyf2005
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://rm-bp142f59xsa65axiwto.mysql.rds.aliyuncs.com:3306/weixinplus?useSSL=false&serverTimezone=Asia/Shanghai
+    username: lyf_mysql
+    password: Lyf2005@
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 server:

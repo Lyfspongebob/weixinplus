@@ -2,6 +2,7 @@ package com.example.wexinplus.User;
 
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends CrudRepository<User, Long> {
@@ -11,4 +12,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     // 新增：检查用户名是否存在（关键方法）
     boolean existsByUsername(String username);
+
+    // 通过用户名模糊搜索用户
+    List<User> findByUsernameContaining(String username);
 }

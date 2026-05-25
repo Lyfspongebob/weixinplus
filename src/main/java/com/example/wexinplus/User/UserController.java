@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -73,14 +75,10 @@ public class UserController {
      * GET /api/users/search?username=xxx
      */
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<User>> searchByUsername(@RequestParam String username) {
-        try {
-            User user = userService.getUserByUsername(username);
-            user.setPassword(null);
-            return ResponseEntity.ok(ApiResponse.success(user));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    public ResponseEntity<ApiResponse<List<User>>> searchByUsername(@RequestParam String username) {
+        List<User> users = userService.searchUsersByUsername(username);
+        users.forEach(user -> user.setPassword(null));
+        return ResponseEntity.ok(ApiResponse.success(users));
     }
 
     /**
