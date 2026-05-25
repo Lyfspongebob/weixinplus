@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: weixinplus
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/weixinplus
+    username: root
+    password: Lyf2005
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8083
