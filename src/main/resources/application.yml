@@ -9,8 +9,8 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/weixinplus
-    username: root
-    password: Lyf2005
+    username: your_username
+    password: your_password
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 
