@@ -9,8 +9,8 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/weixinplus
-    username: your_username
-    password: your_password
+    username: root
+    password: Lyf2005
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 
@@ -18,6 +18,20 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+
+sa-token:
+  # token 名称（同时也是 cookie 名称）
+  token-name: satoken
+  # token 有效期，单位秒，7天
+  timeout: 604800
+  # 是否允许同一账号并发登录（false 表示同端互斥）
+  allow-concurrent-login: false
+  # 是否允许同一账号多地登录（false 表示同端互斥）
+  is-share: false
+  # token 风格
+  token-style: uuid
+  # 在登录时是否输出日志
+  is-log: true
 
 server:
   port: 8083

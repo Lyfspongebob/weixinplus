@@ -1,8 +1,10 @@
 package com.example.wexinplus.User;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.example.wexinplus.FriendGroup.FriendGroup;
 import com.example.wexinplus.FriendGroup.FriendGroupRepository;
 import com.example.wexinplus.dto.LoginRequest;
+import com.example.wexinplus.dto.LoginResponse;
 import com.example.wexinplus.dto.RegisterRequest;
 import com.example.wexinplus.dto.UpdateUserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +59,7 @@ public class UserService {
     /**
      * 用户登录
      */
-    public User login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
         if (userOpt.isEmpty()) {
             throw new RuntimeException("用户名或密码错误");
@@ -72,20 +74,28 @@ public class UserService {
         user.setStatus(1);
         userRepository.save(user);
 
-        return user;
+        // Sa-Token 登录，生成 token
+        StpUtil.login(user.getUserId());
+        String token = StpUtil.getTokenValue();
+
+        return new LoginResponse(token, user);
     }
 
     /**
      * 用户登出
      */
     @Transactional
-    public void logout(Long userId) {
+    public void logout() {
+        // 获取当前登录用户ID
+        long userId = StpUtil.getLoginIdAsLong();
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             user.setStatus(0); // 设置为离线
             userRepository.save(user);
         }
+        // Sa-Token 登出
+        StpUtil.logout();
     }
 
     /**

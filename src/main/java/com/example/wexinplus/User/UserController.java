@@ -35,11 +35,11 @@ public class UserController {
      * POST /api/users/login
      */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<User>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         try {
-            User user = userService.login(request);
-            user.setPassword(null);
-            return ResponseEntity.ok(ApiResponse.success("登录成功", user));
+            LoginResponse loginResponse = userService.login(request);
+            loginResponse.getUser().setPassword(null);
+            return ResponseEntity.ok(ApiResponse.success("登录成功", loginResponse));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
@@ -47,12 +47,28 @@ public class UserController {
 
     /**
      * 用户登出
-     * POST /api/users/logout/{userId}
+     * POST /api/users/logout
      */
-    @PostMapping("/logout/{userId}")
-    public ResponseEntity<ApiResponse<Void>> logout(@PathVariable Long userId) {
-        userService.logout(userId);
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout() {
+        userService.logout();
         return ResponseEntity.ok(ApiResponse.success("登出成功", null));
+    }
+
+    /**
+     * 获取当前登录用户信息
+     * GET /api/users/me
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<User>> getCurrentUser() {
+        try {
+            long userId = cn.dev33.satoken.stp.StpUtil.getLoginIdAsLong();
+            User user = userService.getUserById(userId);
+            user.setPassword(null);
+            return ResponseEntity.ok(ApiResponse.success(user));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
     }
 
     /**
