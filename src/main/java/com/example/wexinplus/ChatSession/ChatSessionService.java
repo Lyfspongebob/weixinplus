@@ -1,5 +1,7 @@
 package com.example.wexinplus.ChatSession;
 
+import com.example.wexinplus.Message.Message;
+import com.example.wexinplus.Message.MessageRepository;
 import com.example.wexinplus.SessionParticipant.SessionParticipant;
 import com.example.wexinplus.SessionParticipant.SessionParticipantRepository;
 import com.example.wexinplus.User.User;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,6 +26,9 @@ public class ChatSessionService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     /**
      * 创建私聊会话（如果已存在则返回现有会话）
@@ -78,6 +84,30 @@ public class ChatSessionService {
             sessionMap.put("createTime", session.getCreateTime());
             sessionMap.put("lastReadTime", sp.getLastReadTime());
 
+            // ===== 新增：计算未读消息数量 =====
+            LocalDateTime lastReadTime = sp.getLastReadTime();
+            List<Message> messages = session.getMessages();
+//            long unreadCount;
+//            if (lastReadTime == null) {
+//                unreadCount = messages.size();
+//            } else {
+//                unreadCount = messages.stream()
+//                        .filter(msg -> msg.getSendTime() != null && msg.getSendTime().isAfter(lastReadTime))
+//                        .count();
+//            }
+            long unreadCount;
+            if (lastReadTime == null) {
+                unreadCount = session.getMessages().stream()
+                        .filter(msg -> !msg.getSender().getUserId().equals(userId))
+                        .count();
+            } else {
+                unreadCount = session.getMessages().stream()
+                        .filter(msg -> msg.getSendTime() != null && msg.getSendTime().isAfter(lastReadTime))
+                        .filter(msg -> !msg.getSender().getUserId().equals(userId))
+                        .count();
+            }
+            sessionMap.put("unreadCount", unreadCount);
+
             if (session.getSessionType() == 1) {
                 // 私聊：获取对方用户信息
                 List<SessionParticipant> allParticipants = sessionParticipantRepository
@@ -98,6 +128,19 @@ public class ChatSessionService {
                 // 群聊：获取群信息
                 sessionMap.put("groupId", session.getChatGroup().getGroupId());
                 sessionMap.put("groupName", session.getChatGroup().getGroupName());
+            }
+
+            // 获取最后一条消息
+            Message lastMessage = messageRepository
+                    .findTopByChatSessionSessionIdOrderBySendTimeDesc(session.getSessionId())
+                    .orElse(null);
+
+            if (lastMessage != null) {
+                sessionMap.put("lastMessage", lastMessage.getContent());
+                sessionMap.put("lastMessageTime", lastMessage.getSendTime());
+                sessionMap.put("lastMessageSenderName", lastMessage.getSender().getNickname() != null
+                        ? lastMessage.getSender().getNickname()
+                        : lastMessage.getSender().getUsername());
             }
 
             return sessionMap;

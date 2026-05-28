@@ -7,11 +7,12 @@ spring:
       ddl-auto: update
     show-sql: true
 
-    datasource:
+  datasource:
     url: jdbc:mysql://localhost:3306/weixinplus
     username: your_username
     password: your_password
     driver-class-name: com.mysql.cj.jdbc.Driver
+
 
   servlet:
     multipart:

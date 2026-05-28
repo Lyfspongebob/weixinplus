@@ -4,6 +4,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface MessageRepository extends CrudRepository<Message, Long> {
 
@@ -20,4 +21,8 @@ public interface MessageRepository extends CrudRepository<Message, Long> {
     // 根据消息类型查找会话中的消息
     List<Message> findByChatSessionSessionIdAndMessageTypeOrderBySendTimeAsc(
             Long sessionId, Integer messageType);
+
+    // 根据会话ID查找最后一条消息
+    Optional<Message> findTopByChatSessionSessionIdOrderBySendTimeDesc(Long sessionId);
+
 }
