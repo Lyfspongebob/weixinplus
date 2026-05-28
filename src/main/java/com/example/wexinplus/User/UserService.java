@@ -6,6 +6,7 @@ import com.example.wexinplus.dto.LoginRequest;
 import com.example.wexinplus.dto.RegisterRequest;
 import com.example.wexinplus.dto.UpdateUserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ public class UserService {
     @Autowired
     private FriendGroupRepository friendGroupRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     /**
      * 用户注册
      */
@@ -34,7 +38,7 @@ public class UserService {
         // 创建新用户
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setNickname(request.getNickname() != null ? request.getNickname() : request.getUsername());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
@@ -60,7 +64,7 @@ public class UserService {
         }
 
         User user = userOpt.get();
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("用户名或密码错误");
         }
 

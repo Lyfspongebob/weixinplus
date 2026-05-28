@@ -4,7 +4,11 @@ import com.example.wexinplus.dto.ApiResponse;
 import com.example.wexinplus.dto.QueryMessageRequest;
 import com.example.wexinplus.dto.SendMessageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -68,16 +72,37 @@ public class MessageController {
      * GET /api/messages/download/{sessionId}
      * 可选参数: startTime, endTime (格式: yyyy-MM-dd HH:mm:ss)
      */
+//    @GetMapping("/download/{sessionId}")
+//    public ResponseEntity<ApiResponse<String>> downloadChatRecord(
+//            @PathVariable Long sessionId,
+//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+//            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+//        try {
+//            String filePath = messageService.downloadChatRecord(sessionId, startTime, endTime);
+//            return ResponseEntity.ok(ApiResponse.success("导出成功", filePath));
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+//        }
+//    }
     @GetMapping("/download/{sessionId}")
-    public ResponseEntity<ApiResponse<String>> downloadChatRecord(
+    public ResponseEntity<Resource> downloadChatRecord(
             @PathVariable Long sessionId,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
         try {
-            String filePath = messageService.downloadChatRecord(sessionId, startTime, endTime);
-            return ResponseEntity.ok(ApiResponse.success("导出成功", filePath));
+            Path filePath = messageService.downloadChatRecord(sessionId, startTime, endTime);
+            java.io.File file = filePath.toFile();
+
+            FileSystemResource resource = new FileSystemResource(file);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + file.getName() + "\"")
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .contentLength(file.length())
+                    .body(resource);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(null);
         }
     }
 

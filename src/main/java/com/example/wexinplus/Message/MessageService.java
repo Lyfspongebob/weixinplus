@@ -99,7 +99,7 @@ public class MessageService {
      * @param endTime   结束时间（可选）
      * @return 下载文件的路径
      */
-    public String downloadChatRecord(Long sessionId, LocalDateTime startTime, LocalDateTime endTime) {
+    public Path downloadChatRecord(Long sessionId, LocalDateTime startTime, LocalDateTime endTime) {
         List<Message> messages;
 
         if (startTime != null && endTime != null) {
@@ -176,7 +176,7 @@ public class MessageService {
                 writer.write("===== 导出完毕 =====");
             }
 
-            return filePath.toAbsolutePath().toString();
+            return filePath;
 
         } catch (IOException e) {
             throw new RuntimeException("导出聊天记录失败: " + e.getMessage());
